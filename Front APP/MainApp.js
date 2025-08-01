@@ -327,7 +327,7 @@ function MainAppContent() {
         isOffline={isOffline}
         onRefresh={handleRefresh}
       />
-    </View>
+    </UniversalSafeAreaView>
   );
 }
 
