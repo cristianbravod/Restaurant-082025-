@@ -394,7 +394,23 @@ class MenuController {
   }
 
   async updateMenuItem(req, res) {
-    res.status(501).json({ message: 'Update menu item not implemented yet' });
+    const { id } = req.params;
+    const { nombre, descripcion, precio, categoria_id, disponible, vegetariano, picante } = req.body;
+    try {
+      const result = await pool.query(
+        `UPDATE menu_items
+         SET nombre = $1, descripcion = $2, precio = $3, categoria_id = $4, disponible = $5, vegetariano = $6, picante = $7, fecha_modificacion = NOW()
+         WHERE id = $8 RETURNING *`,
+        [nombre, descripcion, precio, categoria_id, disponible, vegetariano, picante, id]
+      );
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'Menu item not found' });
+      }
+      res.json(result.rows[0]);
+    } catch (error) {
+      console.error('Error updating menu item:', error);
+      res.status(500).json({ message: 'Error updating menu item', error: error.message });
+    }
   }
 
   async deleteMenuItem(req, res) {
