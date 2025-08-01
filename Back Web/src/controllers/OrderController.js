@@ -395,7 +395,7 @@ class OrderController {
       // Actualizar estado del item
       const result = await client.query(`
         UPDATE orden_items 
-        SET estado_item = $1, fecha_modificacion = NOW()
+        SET estado_item = $1
         WHERE id = $2 AND orden_id = $3
         RETURNING *
       `, [estado, itemId, ordenId]);
