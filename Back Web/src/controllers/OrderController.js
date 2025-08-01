@@ -99,21 +99,21 @@ class OrderController {
           }
         }
         
-        await client.query(`
-          INSERT INTO orden_items (
-            orden_id, menu_item_id, cantidad, precio_unitario, 
-            instrucciones_especiales, estado_item, fecha_creacion
-          )
-          VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-          [
-            order.id,
-            item.menu_item_id,
-            item.cantidad,
-            precioUnitario,
-            item.observaciones || item.instrucciones || '',
-            'pendiente'
-          ]
-        );
+        const esEspecial = item.esEspecial || item.es_especial;
+        const query = esEspecial
+          ? `INSERT INTO orden_items (orden_id, plato_especial_id, cantidad, precio_unitario, instrucciones_especiales, estado_item, fecha_creacion) VALUES ($1, $2, $3, $4, $5, $6, NOW())`
+          : `INSERT INTO orden_items (orden_id, menu_item_id, cantidad, precio_unitario, instrucciones_especiales, estado_item, fecha_creacion) VALUES ($1, $2, $3, $4, $5, $6, NOW())`;
+
+        const params = [
+          order.id,
+          esEspecial ? item.id : item.menu_item_id || item.id,
+          item.cantidad,
+          precioUnitario,
+          item.observaciones || item.instrucciones || '',
+          'pendiente'
+        ];
+
+        await client.query(query, params);
       }
       
       await client.query('COMMIT');
@@ -194,7 +194,7 @@ class OrderController {
         FROM ordenes o
         LEFT JOIN orden_items oi ON o.id = oi.orden_id
         LEFT JOIN menu_items m ON oi.menu_item_id = m.id
-        LEFT JOIN platos_especiales pe ON oi.menu_item_id = pe.id
+        LEFT JOIN platos_especiales pe ON oi.plato_especial_id = pe.id
         LEFT JOIN categorias c1 ON m.categoria_id = c1.id
         LEFT JOIN categorias c2 ON pe.categoria_id = c2.id
         WHERE o.estado IN ('pendiente', 'confirmada', 'preparando', 'lista')
