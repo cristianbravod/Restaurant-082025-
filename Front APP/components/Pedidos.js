@@ -14,6 +14,7 @@ import {
   Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ApiService from '../services/ApiService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -166,8 +167,30 @@ export default function Pedidos({
   // EFECTOS
   // ==========================================
   useEffect(() => {
+    const cargarPedidosGuardados = async () => {
+      try {
+        const pedidosGuardados = await AsyncStorage.getItem('pedidosMesas');
+        if (pedidosGuardados !== null) {
+          setPedidosMesas(JSON.parse(pedidosGuardados));
+        }
+      } catch (error) {
+        console.error('Error cargando pedidos desde AsyncStorage:', error);
+      }
+    };
+    cargarPedidosGuardados();
     cargarDatosIniciales();
   }, [cargarDatosIniciales]);
+
+  useEffect(() => {
+    const guardarPedidos = async () => {
+      try {
+        await AsyncStorage.setItem('pedidosMesas', JSON.stringify(pedidosMesas));
+      } catch (error) {
+        console.error('Error guardando pedidos en AsyncStorage:', error);
+      }
+    };
+    guardarPedidos();
+  }, [pedidosMesas]);
 
   useEffect(() => {
     console.log('🔍 DEBUG PEDIDOS - Props recibidas:', {

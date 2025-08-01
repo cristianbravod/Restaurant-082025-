@@ -1017,52 +1017,14 @@ class ApiService {
   async createMesa(mesaData) {
     try {
       console.log('➕ Creando nueva mesa...', mesaData);
-      
-      // Intentar crear en el servidor PostgreSQL
-      try {
-        const response = await this.request('/mesas', {
-          method: 'POST',
-          body: JSON.stringify(mesaData)
-        });
-        
-        console.log('✅ Mesa creada en servidor PostgreSQL:', response.nombre);
-        
-        // Actualizar caché local
-        await this.actualizarMesaEnCache(response, 'create');
-        return response;
-        
-      } catch (serverError) {
-        console.log('⚠️ Error en servidor, guardando localmente:', serverError.message);
-      }
-      
-      // Crear localmente si el servidor falla
-      const mesasActuales = await this.getMesas();
-      const nuevaId = mesaData.tipo === 'pickup' 
-        ? `pickup_${Date.now()}`
-        : Math.max(...mesasActuales.filter(m => m.tipo === 'mesa').map(m => parseInt(m.id) || 0), 0) + 1;
-      
-      const nuevaMesa = {
-        id: nuevaId,
-        numero: mesaData.numero,
-        nombre: mesaData.nombre,
-        capacidad: mesaData.capacidad,
-        estado: 'disponible',
-        ubicacion: mesaData.ubicacion || 'Sin ubicación',
-        tipo: mesaData.tipo || 'mesa',
-        descripcion: mesaData.descripcion || '',
-        activa: true,
-        fecha_creacion: new Date().toISOString(),
-        creado_por: 'Usuario'
-      };
-      
-      const mesasActualizadas = [...mesasActuales, nuevaMesa];
-      await this.guardarMesasEnCache(mesasActualizadas);
-      
-      console.log('✅ Mesa creada localmente:', nuevaMesa.nombre);
-      return nuevaMesa;
-      
+      const response = await this.request('/mesas', {
+        method: 'POST',
+        body: JSON.stringify(mesaData)
+      });
+      console.log('✅ Mesa creada en servidor PostgreSQL:', response.nombre);
+      return response;
     } catch (error) {
-      console.error('❌ Error creando mesa:', error.message);
+      console.error('❌ Error creando mesa:', error);
       throw error;
     }
   }
