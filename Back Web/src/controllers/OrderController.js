@@ -166,7 +166,6 @@ class OrderController {
           o.total,
           o.estado,
           o.notas as observaciones,
-          o.cliente,
           o.fecha_creacion,
           o.fecha_modificacion,
           -- Información de items
