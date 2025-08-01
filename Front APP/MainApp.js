@@ -293,8 +293,7 @@ function MainAppContent() {
   return (
     <View style={{ 
       flex: 1, 
-      backgroundColor: '#f8f8f8',
-      paddingTop: safeAreaConfig.getTopPadding()
+      backgroundColor: '#f8f8f8'
     }}>
       <StatusBar 
         barStyle="dark-content" 
