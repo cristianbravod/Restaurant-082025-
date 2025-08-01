@@ -152,6 +152,7 @@ function renderOrderCard(orden, showActions = true) {
                         <select class="status-select" onchange="handleOrderStatusChange(${orden.id}, this.value)">
                             <option value="pendiente" ${orden.estado === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
                             <option value="preparando" ${orden.estado === 'preparando' ? 'selected' : ''}>🔥 Preparando</option>
+                            <option value="lista" ${(orden.estado === 'lista') ? 'selected' : ''}>✅ Listo</option>
                             <option value="entregada" ${orden.estado === 'entregada' ? 'selected' : ''}>📦 Entregada</option>
                         </select>
                     </div>
