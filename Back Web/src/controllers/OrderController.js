@@ -73,6 +73,7 @@ class OrderController {
       
       // Insertar items de la orden
       for (const item of items) {
+        console.log('DEBUG: Procesando item:', JSON.stringify(item, null, 2));
         let precioUnitario = item.precio;
         
         // Si no viene precio, buscarlo en BD
@@ -696,7 +697,7 @@ class OrderController {
         FROM ordenes o
         LEFT JOIN orden_items oi ON o.id = oi.orden_id
         LEFT JOIN menu_items m ON oi.menu_item_id = m.id
-        LEFT JOIN platos_especiales pe ON oi.menu_item_id = pe.id
+        LEFT JOIN platos_especiales pe ON oi.plato_especial_id = pe.id
         ${whereClause}
         GROUP BY o.id
         ORDER BY o.fecha_creacion DESC
