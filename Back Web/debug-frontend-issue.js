@@ -326,20 +326,20 @@ async function main() {
       log('\n⚠️ No hay productos en menu_items', 'yellow');
       log('¿Quieres crear algunos productos de ejemplo? (y/n):', 'yellow');
       
-      const readline = require('readline');
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-      });
+      // const readline = require('readline');
+      // const rl = readline.createInterface({
+      //   input: process.stdin,
+      //   output: process.stdout
+      // });
       
-      const answer = await new Promise(resolve => {
-        rl.question('Respuesta: ', resolve);
-      });
-      rl.close();
+      // const answer = await new Promise(resolve => {
+      //   rl.question('Respuesta: ', resolve);
+      // });
+      // rl.close();
       
-      if (answer.toLowerCase().trim() === 'y' || answer.toLowerCase().trim() === 'yes') {
-        await generateSampleData();
-      }
+      // if (answer.toLowerCase().trim() === 'y' || answer.toLowerCase().trim() === 'yes') {
+      //   await generateSampleData();
+      // }
     }
     
     // Paso 3: Probar endpoints de API
