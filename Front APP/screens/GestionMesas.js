@@ -191,7 +191,16 @@ export default function GestionMesas() {
     } catch (error) {
       console.error('❌ Error guardando mesa:', error);
       setSyncStatus('❌ Error guardando mesa');
-      Alert.alert('Error', 'No se pudo guardar la mesa');
+      let errorMessage = 'No se pudo guardar la mesa. Intente de nuevo.';
+      if (error.message && error.message.includes('409')) {
+        try {
+          const errorBody = JSON.parse(error.message.substring(error.message.indexOf('{')));
+          errorMessage = errorBody.error || 'Ya existe una mesa con ese número y tipo.';
+        } catch (e) {
+          errorMessage = 'Ya existe una mesa con ese número y tipo.';
+        }
+      }
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
       setTimeout(() => setSyncStatus(''), 3000);
