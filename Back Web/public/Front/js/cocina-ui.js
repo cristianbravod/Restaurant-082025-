@@ -103,6 +103,29 @@ function setupRolePermissions() {
 // FUNCIONES DE RENDERIZADO DE ÓRDENES
 // ==========================================
 
+function getOrderDisplayStatus(order) {
+    if (!order || !order.items || order.items.length === 0) {
+        return order.estado || 'pendiente';
+    }
+
+    const itemStates = order.items.map(item => item.estado || 'pendiente');
+
+    if (itemStates.includes('preparando')) {
+        return 'preparando';
+    }
+    if (itemStates.every(state => state === 'lista')) {
+        return 'lista';
+    }
+    if (itemStates.every(state => state === 'pendiente')) {
+        return 'pendiente';
+    }
+    if (itemStates.some(state => state === 'lista')) {
+        return 'preparando';
+    }
+
+    return order.estado; // Fallback to the original state
+}
+
 /**
  * Renderizar órdenes en contenedor específico
  */
@@ -137,6 +160,7 @@ function renderOrderCard(orden, showActions = true) {
     const timeAgo = formatTimeAgo(orden.fecha_creacion);
     const waitTime = orden.minutos_espera || 0;
     const priority = orden.prioridad || 'NORMAL';
+    const displayStatus = getOrderDisplayStatus(orden);
     
     return `
         <div class="order-card" data-order-id="${orden.id}" data-priority="${priority}">
@@ -150,17 +174,17 @@ function renderOrderCard(orden, showActions = true) {
                 ${showActions ? `
                     <div class="order-actions">
                         <select class="status-select" onchange="handleOrderStatusChange(${orden.id}, this.value)">
-                            <option value="pendiente" ${orden.estado === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
-                            <option value="preparando" ${orden.estado === 'preparando' ? 'selected' : ''}>🔥 Preparando</option>
-                            <option value="lista" ${(orden.estado === 'lista') ? 'selected' : ''}>✅ Listo</option>
-                            <option value="entregada" ${orden.estado === 'entregada' ? 'selected' : ''}>📦 Entregada</option>
+                            <option value="pendiente" ${displayStatus === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
+                            <option value="preparando" ${displayStatus === 'preparando' ? 'selected' : ''}>🔥 Preparando</option>
+                            <option value="lista" ${displayStatus === 'lista' ? 'selected' : ''}>✅ Listo</option>
+                            <option value="entregada" ${displayStatus === 'entregada' ? 'selected' : ''}>📦 Entregada</option>
                         </select>
                     </div>
                 ` : ''}
             </div>
             
             <div class="order-items">
-                ${(orden.items || []).map(item => renderOrderItem(item, orden.id, showActions)).join('')}
+                ${(orden.items || []).map(item => renderOrderItem(item, orden, showActions)).join('')}
             </div>
             
             ${(orden.observaciones || orden.notas) ? `
@@ -171,7 +195,7 @@ function renderOrderCard(orden, showActions = true) {
             
             <div class="order-footer">
                 <span class="order-total">Total: $${formatCurrency(orden.total || 0)}</span>
-                <span class="order-status ${getStatusClass(orden.estado)}">${getStatusLabel(orden.estado)}</span>
+                <span class="order-status ${getStatusClass(displayStatus)}">${getStatusLabel(displayStatus)}</span>
                 ${showActions ? `
                     <button class="btn btn-secondary btn-sm" onclick="showOrderDetails(${orden.id})">
                         👁️ Detalles
@@ -185,9 +209,13 @@ function renderOrderCard(orden, showActions = true) {
 /**
  * Renderizar item individual de orden
  */
-function renderOrderItem(item, ordenId, showActions = true) {
+function renderOrderItem(item, orden, showActions = true) {
+    const isOrderInProgress = orden && orden.items.some(i => i.estado === 'preparando' || i.estado === 'lista');
+    const isItemPending = (item.estado || 'pendiente') === 'pendiente';
+    const highlightClass = isOrderInProgress && isItemPending ? 'item-pending-urgent' : '';
+
     return `
-        <div class="order-item" data-item-id="${item.id}">
+        <div class="order-item ${highlightClass}" data-item-id="${item.id}">
             <div class="item-info">
                 <span class="item-name">${item.nombre || 'Item desconocido'}</span>
                 <span class="item-quantity">x${item.cantidad}</span>

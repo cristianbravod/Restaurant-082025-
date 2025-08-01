@@ -684,6 +684,14 @@ input, select, textarea {
     color: var(--danger-color);
 }
 
+.item-pending-urgent {
+    background-color: rgba(231, 76, 60, 0.1) !important;
+    border-left: 3px solid var(--danger-color);
+    border-radius: var(--border-radius);
+    margin-left: -1.5rem;
+    padding-left: calc(1.5rem - 3px);
+}
+
 /* ==========================================
    ESTADOS ESPECIALES 
    ========================================== */
