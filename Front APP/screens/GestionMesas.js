@@ -145,10 +145,19 @@ export default function GestionMesas() {
 
   const guardarMesa = async () => {
     try {
-      // Validar datos
-      const errores = ApiService.validarDatosMesa(formData);
-      if (errores.length > 0) {
-        Alert.alert('Error de validación', errores.join('\n'));
+      // Validaciones del frontend
+      const { nombre, numero, capacidad, tipo } = formData;
+      if (!nombre.trim()) {
+        Alert.alert('Error', 'El nombre de la mesa es obligatorio.');
+        return;
+      }
+      if (!numero.toString().trim()) {
+        Alert.alert('Error', 'El número de mesa es obligatorio.');
+        return;
+      }
+      const capacidadNum = parseInt(capacidad);
+      if (isNaN(capacidadNum) || capacidadNum <= 0) {
+        Alert.alert('Error', 'La capacidad debe ser un número mayor a 0.');
         return;
       }
 

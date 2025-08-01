@@ -337,7 +337,15 @@ export default function Pedidos({
 
       console.log('📤 Enviando pedido a cocina:', pedidoData);
       
-      // Aquí llamarías a ApiService.enviarPedidoCocina(pedidoData)
+      const pedidoParaEnviar = {
+        mesa: mesaActual.nombre,
+        items: productosTemporales,
+        total: pedidoData.total,
+        cliente: `Mesa ${mesaActual.nombre}`,
+        observaciones: `Pedido por ${user?.nombre || 'Usuario'}`
+      };
+
+      await ApiService.createPedido(pedidoParaEnviar);
       
       // Mover productos temporales al pedido de la mesa
       setPedidosMesas(prev => ({
