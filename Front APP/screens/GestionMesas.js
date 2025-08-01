@@ -246,7 +246,7 @@ export default function GestionMesas() {
       setLoading(true);
       setSyncStatus('Cambiando estado...');
       
-      await ApiService.updateEstadoMesa(mesa.id, nuevoEstado);
+      await ApiService.cambiarEstadoMesa(mesa.id, nuevoEstado);
       await cargarDatos();
       
       setSyncStatus('✅ Estado actualizado');
