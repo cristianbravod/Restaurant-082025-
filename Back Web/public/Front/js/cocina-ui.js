@@ -199,7 +199,7 @@ function renderOrderItem(item, ordenId, showActions = true) {
                     <select class="item-status-select" onchange="handleItemStatusChange(${ordenId}, ${item.id}, this.value)">
                         <option value="pendiente" ${(item.estado || 'pendiente') === 'pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
                         <option value="preparando" ${item.estado === 'preparando' ? 'selected' : ''}>🔥 Preparando</option>
-                        <option value="listo" ${item.estado === 'listo' ? 'selected' : ''}>✅ Listo</option>
+                        <option value="lista" ${item.estado === 'lista' ? 'selected' : ''}>✅ Listo</option>
                         <option value="entregado" ${item.estado === 'entregado' ? 'selected' : ''}>📦 Entregado</option>
                     </select>
                 </div>

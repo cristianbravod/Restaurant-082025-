@@ -381,8 +381,12 @@ class OrderController {
     const client = await pool.connect();
     try {
       const { ordenId, itemId } = req.params;
-      const { estado } = req.body;
+      let { estado } = req.body;
       
+      if (estado === 'listo') {
+        estado = 'lista';
+      }
+
       console.log(`✅ Actualizando item ${itemId} de orden ${ordenId} a estado: ${estado}`);
       
       if (!estado) {
