@@ -6,7 +6,8 @@ import { View, Platform, StatusBar, Alert } from "react-native";
 import { 
   UniversalSafeAreaProvider, 
   useSafeAreaConfig,
-  SafeAreaConfig 
+  SafeAreaConfig,
+  UniversalSafeAreaView
 } from "./navigation/SafeAreaProvider";
 
 import { useAuth } from "./contexts/AuthContext";
@@ -291,10 +292,7 @@ function MainAppContent() {
 
   // ✅ RENDERIZAR APP PRINCIPAL CON DATOS
   return (
-    <View style={{ 
-      flex: 1, 
-      backgroundColor: '#f8f8f8'
-    }}>
+    <UniversalSafeAreaView style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
       <StatusBar 
         barStyle="dark-content" 
         backgroundColor="#ffffff" 

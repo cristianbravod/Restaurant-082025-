@@ -14,7 +14,6 @@ export default function AppHeader() {
     <View style={[
       styles.headerContainer,
       { 
-        paddingTop: insets.top + 10,
         paddingLeft: Math.max(insets.left, 16),
         paddingRight: Math.max(insets.right, 16)
       }
