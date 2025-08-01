@@ -64,11 +64,11 @@ app.get('/api/health', (req, res) => {
 
 // ✅ RUTAS DE LA API
 app.use('/api/auth', authRoutes);
-app.use('/api', menuRoutes);  // /api/menu, /api/categorias, etc.
 app.use('/api/ordenes', orderRoutes);
 app.use('/api/reportes', reportRoutes);
 app.use('/api/mesas', tableRoutes);
 app.use('/api/upload', uploadRoutes); // ✅ Ruta de upload
+app.use('/api', menuRoutes);  // /api/menu, /api/categorias, etc.
 
 // Documentación básica de la API (actualizada)
 app.get('/api', (req, res) => {
