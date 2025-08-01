@@ -416,6 +416,7 @@ class OrderController {
       `, [ordenId]);
       
       const { total, listos } = checkResult.rows[0];
+      console.log(`DEBUG: Total items: ${total}, Items listos: ${listos}`);
       
       // Si todos los items están listos, actualizar la orden
       if (parseInt(total) === parseInt(listos)) {
