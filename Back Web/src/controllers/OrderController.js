@@ -197,7 +197,7 @@ class OrderController {
         LEFT JOIN platos_especiales pe ON oi.menu_item_id = pe.id
         LEFT JOIN categorias c1 ON m.categoria_id = c1.id
         LEFT JOIN categorias c2 ON pe.categoria_id = c2.id
-        WHERE o.estado IN ('pendiente', 'confirmada', 'preparando', 'lista', 'listo')
+        WHERE o.estado IN ('pendiente', 'confirmada', 'preparando', 'lista')
         GROUP BY o.id
         ORDER BY o.fecha_creacion ASC  -- FIFO: Primero en entrar, primero en salir
       `);
@@ -316,7 +316,7 @@ class OrderController {
       // Validar estados permitidos
       const estadosValidos = [
         'pendiente', 'confirmada', 'preparando', 
-        'lista', 'listo', 'entregada', 'cancelada'
+        'lista', 'entregada', 'cancelada'
       ];
       
       if (!estadosValidos.includes(estado)) {
@@ -342,11 +342,11 @@ class OrderController {
       
       const orden = result.rows[0];
       
-      // Si se marca como lista/listo, actualizar todos los items
-      if (estado === 'lista' || estado === 'listo') {
+      // Si se marca como lista, actualizar todos los items
+      if (estado === 'lista') {
         await client.query(`
           UPDATE orden_items 
-          SET estado_item = 'listo', fecha_modificacion = NOW()
+          SET estado_item = 'lista'
           WHERE orden_id = $1
         `, [id]);
       }
@@ -410,7 +410,7 @@ class OrderController {
       // Verificar si todos los items están listos para actualizar la orden
       const checkResult = await client.query(`
         SELECT COUNT(*) as total,
-               COUNT(CASE WHEN estado_item = 'listo' THEN 1 END) as listos
+               COUNT(CASE WHEN estado_item = 'lista' THEN 1 END) as listos
         FROM orden_items 
         WHERE orden_id = $1
       `, [ordenId]);
