@@ -16,11 +16,6 @@ const validateMenuItem = [
   body('descripcion').optional().isString()
 ];
 
-const validateCategory = [
-  body('nombre').notEmpty().withMessage('Category name is required'),
-  body('descripcion').optional().isString()
-];
-
 const validateSpecialItem = [
   body('nombre').notEmpty().withMessage('Name is required'),
   body('precio').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
@@ -32,11 +27,8 @@ const validateSpecialItem = [
 // RUTAS PÚBLICAS (sin autenticación)
 // ==========================================
 
-// Obtener categorías
-router.get('/categorias', MenuController.getCategories);
-
 // ✅ ACTUALIZADO: Obtener menú completo con UNION (menu_items + platos_especiales)
-router.get('/menu', MenuController.getMenu);
+router.get('/', MenuController.getMenu);
 
 // ✅ NUEVO: Endpoints específicos para la web con estructura agrupada
 router.get('/menu-publico', MenuController.getMenuForWeb);
@@ -61,11 +53,8 @@ router.get('/debug/menu', MenuController.debugMenu);
 // RUTAS DE ADMINISTRACIÓN (requieren auth)
 // ==========================================
 
-// Gestión de categorías
-router.post('/categorias', authMiddleware, adminMiddleware, validateCategory, MenuController.createCategory);
-
 // Gestión de items del menú
-router.post('/menu', authMiddleware, adminMiddleware, validateMenuItem, MenuController.createMenuItem);
+router.post('/', authMiddleware, adminMiddleware, validateMenuItem, MenuController.createMenuItem);
 router.put('/menu/:id', authMiddleware, adminMiddleware, validateMenuItem, MenuController.updateMenuItem);
 router.delete('/menu/:id', authMiddleware, adminMiddleware, MenuController.deleteMenuItem);
 router.patch('/menu/:id/disponibilidad', authMiddleware, adminMiddleware, MenuController.toggleAvailability);
