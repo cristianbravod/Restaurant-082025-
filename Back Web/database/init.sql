@@ -68,6 +68,8 @@ CREATE TABLE mesas (
 CREATE TABLE ordenes (
     id SERIAL PRIMARY KEY,
     usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+    mesa VARCHAR(100),
+    cliente VARCHAR(100),
     total DECIMAL(10,2) NOT NULL,
     estado VARCHAR(20) DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'confirmada', 'preparando', 'lista', 'entregada', 'cancelada')),
     direccion_entrega TEXT,

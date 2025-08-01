@@ -54,10 +54,9 @@ class OrderController {
       // Crear la orden principal
       const orderResult = await client.query(`
         INSERT INTO ordenes (
-          usuario_id, mesa, total, estado, metodo_pago, notas, 
-          cliente, fecha_creacion, fecha_modificacion
+          usuario_id, mesa, total, estado, metodo_pago, notas
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW()) 
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *`,
         [
           1, // usuario por defecto para órdenes rápidas
@@ -65,8 +64,7 @@ class OrderController {
           totalCalculado, 
           'pendiente', 
           'efectivo', // método por defecto
-          observaciones || notas || '',
-          cliente || 'Cliente'
+          observaciones || notas || ''
         ]
       );
       
