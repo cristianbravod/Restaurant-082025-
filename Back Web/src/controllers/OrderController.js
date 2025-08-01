@@ -4,6 +4,11 @@ const config = require('../config/database');
 const pool = new Pool(config);
 
 class OrderController {
+
+  async createOrder(req, res) {
+    console.log('Redirigiendo a createQuickOrder...');
+    this.createQuickOrder(req, res);
+  }
   
   // ==========================================
   // 1. CREAR ORDEN RÁPIDA (SIN AUTH)
