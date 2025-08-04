@@ -50,7 +50,8 @@ CREATE TABLE menu_items (
     picante BOOLEAN DEFAULT false,
     tiempo_preparacion INTEGER,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    imagen_url VARCHAR(255)
 );
 
 -- Tabla de mesas
