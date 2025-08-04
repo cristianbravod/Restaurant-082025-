@@ -511,7 +511,7 @@ export default function Carta({
       console.log('✏️ Actualizando producto con datos:', productoActualizado);
 
       if (endpointDisponible) {
-        const response = await ApiService.updateMenuItem(modoEdicion, productoActualizado);
+        const response = await ApiService.updateItem(modoEdicion, productoActualizado, false);
         
         const productoCompleto = {
           ...response,
@@ -571,7 +571,7 @@ export default function Carta({
               setLoading(true);
               
               if (endpointDisponible) {
-                await ApiService.deleteMenuItem(id);
+                await ApiService.deleteItem(id, false);
                 
                 if (typeof setMenu === 'function') {
                   setMenu(prev => Array.isArray(prev) ? prev.filter(producto => producto.id !== id) : []);
@@ -660,7 +660,7 @@ export default function Carta({
       const productoActualizado = { ...producto, disponible: !producto.disponible };
       
       if (endpointDisponible) {
-        await ApiService.updateMenuItem(producto.id, productoActualizado);
+        await ApiService.updateItem(producto.id, productoActualizado, false);
       } else {
         await guardarCambioOffline('update', productoActualizado);
         setPendingChanges(prev => prev + 1);

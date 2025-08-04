@@ -180,7 +180,7 @@ class MenuService {
       };
 
       // Actualizar en backend
-      const updatedItem = await ApiService.updateMenuItem(id, backendData);
+      const updatedItem = await ApiService.updateItem(id, backendData, false);
       
       // Procesar respuesta
       const processedItem = {
@@ -219,7 +219,7 @@ class MenuService {
       console.log('🗑️ Eliminando item:', id);
 
       // Eliminar del backend
-      await ApiService.deleteMenuItem(id);
+      await ApiService.deleteItem(id, false);
       
       console.log('✅ Item eliminado exitosamente');
       

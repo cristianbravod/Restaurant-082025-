@@ -7,6 +7,7 @@ require('dotenv').config();
 // Importar rutas
 const authRoutes = require('./routes/auth');
 const menuRoutes = require('./routes/menu');
+const MenuController = require('./controllers/MenuController');
 const categoriasRoutes = require('./routes/categorias');
 const orderRoutes = require('./routes/orders');
 const reportRoutes = require('./routes/reports');
@@ -66,6 +67,7 @@ app.get('/api/health', (req, res) => {
 // ✅ RUTAS DE LA API
 app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
+app.put('/api/menu/:id', MenuController.updateMenuItem);
 app.use('/api/categorias', categoriasRoutes);
 app.use('/api/ordenes', orderRoutes);
 app.use('/api/reportes', reportRoutes);

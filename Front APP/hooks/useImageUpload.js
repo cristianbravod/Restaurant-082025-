@@ -319,7 +319,7 @@ export default function Carta({
       let response;
       if (nuevoProducto?.id) {
         // Actualizar producto existente
-        response = await ApiService.updateMenuItem(nuevoProducto.id, productoData);
+        response = await ApiService.updateItem(nuevoProducto.id, productoData, false);
         setSyncStatus('✅ Producto actualizado');
       } else {
         // Crear nuevo producto
@@ -379,7 +379,7 @@ export default function Carta({
               setLoading(true);
               setSyncStatus('Eliminando producto...');
 
-              const response = await ApiService.deleteMenuItem(producto.id);
+              const response = await ApiService.deleteItem(producto.id, false);
               
               if (response.success) {
                 setMenu(prev => prev.filter(item => item.id !== producto.id));

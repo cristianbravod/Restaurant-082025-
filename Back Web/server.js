@@ -87,17 +87,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // ==========================================
-// REGISTRAR RUTAS
-// ==========================================
-app.use('/api/mesas', mesasRoutes);
-app.use('/api/platos-especiales', platosEspecialesRoutes);
-app.use('/api/upload', uploadRoutes);
-
-app.get('/menu', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'menu', 'index.html'));
-});
-
-// ==========================================
 // CONFIGURACION BASE DE DATOS
 // ==========================================
 const pool = new Pool({
@@ -163,6 +152,17 @@ const adminMiddleware = (req, res, next) => {
   }
   next();
 };
+
+// ==========================================
+// REGISTRAR RUTAS
+// ==========================================
+app.use('/api/mesas', mesasRoutes);
+app.use('/api/platos-especiales', platosEspecialesRoutes);
+app.use('/api/upload', uploadRoutes);
+
+app.get('/menu', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'menu', 'index.html'));
+});
 
 // ==========================================
 // ENDPOINTS DE DIAGNOSTICO
