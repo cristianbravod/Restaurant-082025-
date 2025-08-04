@@ -244,7 +244,7 @@ class MenuService {
       console.log('👁️ Cambiando disponibilidad:', id, disponible);
 
       // Actualizar en backend
-      const updatedItem = await ApiService.toggleMenuItemAvailability(id, disponible);
+      const updatedItem = await ApiService.toggleItemAvailability(id, disponible, false);
       
       console.log('✅ Disponibilidad actualizada');
       

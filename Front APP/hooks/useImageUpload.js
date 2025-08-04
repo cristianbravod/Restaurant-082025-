@@ -826,7 +826,7 @@ export default function PlatoEspecial({ platosEspeciales = [], setPlatosEspecial
 
       let response;
       if (modoEdicion) {
-        response = await ApiService.updatePlatoEspecial(modoEdicion, platoData);
+        response = await ApiService.updateItem(modoEdicion, platoData, true);
         setSyncStatus('✅ Plato especial actualizado');
       } else {
         response = await ApiService.createPlatoEspecial(platoData);
