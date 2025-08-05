@@ -486,9 +486,9 @@ export default function Carta({
       
       if (selectedImage && hasNewImage) {
         console.log('📤 Subiendo nueva imagen para actualizar producto...');
-        const nuevaImagenUrl = await subirImagen();
-        if (nuevaImagenUrl) {
-          imagenUrl = nuevaImagenUrl;
+        const uploadResult = await subirImagen();
+        if (uploadResult && uploadResult.urls) {
+          imagenUrl = uploadResult.urls.original;
           console.log('✅ Nueva imagen subida:', imagenUrl);
         }
       }
