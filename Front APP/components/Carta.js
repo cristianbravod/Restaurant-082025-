@@ -33,7 +33,6 @@ try {
 }
 
 import ApiService from "../services/ApiService";
-import { ImageService } from "../services/ImageService";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Carta({ 
@@ -376,7 +375,7 @@ export default function Carta({
       setImageUploadProgress(0);
 
       console.log('📤 Subiendo imagen al servidor...');
-      const result = await ImageService.uploadImage(selectedImage.uri, {
+      const result = await ApiService.uploadImage(selectedImage.uri, {
         onProgress: (progress) => setImageUploadProgress(progress)
       });
 

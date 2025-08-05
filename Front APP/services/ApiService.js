@@ -321,6 +321,23 @@ class ApiService {
     }
   }
 
+  async uploadImage(uri, options = {}) {
+    try {
+      const response = await this.request('/upload/image', {
+        method: 'POST',
+        body: uri,
+        headers: {
+          'Content-Type': 'image/jpeg'
+        },
+        ...options
+      });
+      return response;
+    } catch (error) {
+      console.error('Error uploading image:', error.message);
+      throw error;
+    }
+  }
+
   // ==========================================
   // MÉTODOS DE MENÚ (USANDO RUTAS REALES)
   // ==========================================
