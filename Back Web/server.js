@@ -342,10 +342,10 @@ app.put('/api/menu/:id', async (req, res) => {
   const client = await pool.connect();
   try {
     const { id } = req.params;
-    const { nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante } = req.body;
+    const { nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, imagen } = req.body;
     const result = await client.query(
-      'UPDATE menu_items SET nombre = $1, precio = $2, categoria_id = $3, descripcion = $4, disponible = $5, vegetariano = $6, picante = $7, fecha_modificacion = NOW() WHERE id = $8 RETURNING *',
-      [nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, id]
+      'UPDATE menu_items SET nombre = $1, precio = $2, categoria_id = $3, descripcion = $4, disponible = $5, vegetariano = $6, picante = $7, imagen = $8, fecha_modificacion = NOW() WHERE id = $9 RETURNING *',
+      [nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, imagen, id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Menu item not found' });
