@@ -323,11 +323,18 @@ class ApiService {
 
   async uploadImage(uri, options = {}) {
     try {
+      const formData = new FormData();
+      formData.append('image', {
+        uri,
+        name: 'photo.jpg',
+        type: 'image/jpeg',
+      });
+
       const response = await this.request('/upload/image', {
         method: 'POST',
-        body: uri,
+        body: formData,
         headers: {
-          'Content-Type': 'image/jpeg'
+          'Content-Type': 'multipart/form-data',
         },
         ...options
       });
