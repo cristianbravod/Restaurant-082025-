@@ -79,10 +79,12 @@ const mobileMiddleware = (req, res, next) => {
 // ==========================================
 // MIDDLEWARE PRINCIPAL (ORDEN CORRECTO)
 // ==========================================
-app.use(cors(corsOptions));
-app.use(mobileMiddleware);
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cors(corsOptions));
+app.use(mobileMiddleware);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
@@ -318,14 +320,31 @@ app.get('/api/categorias', async (req, res) => {
 // ==========================================
 // MENU
 // ==========================================
+app.post('/api/menu', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, imagen } = req.body;
+    const result = await client.query(
+      'INSERT INTO menu_items (nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, imagen) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, imagen]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error creating menu item:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    client.release();
+  }
+});
+
 app.put('/api/menu/:id', async (req, res) => {
   const client = await pool.connect();
   try {
     const { id } = req.params;
-    const { nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, imagen } = req.body;
+    const { nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante } = req.body;
     const result = await client.query(
-      'UPDATE menu_items SET nombre = $1, precio = $2, categoria_id = $3, descripcion = $4, disponible = $5, vegetariano = $6, picante = $7, imagen = $8, fecha_modificacion = NOW() WHERE id = $9 RETURNING *',
-      [nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, imagen, id]
+      'UPDATE menu_items SET nombre = $1, precio = $2, categoria_id = $3, descripcion = $4, disponible = $5, vegetariano = $6, picante = $7, fecha_modificacion = NOW() WHERE id = $8 RETURNING *',
+      [nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Menu item not found' });
