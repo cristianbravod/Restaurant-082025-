@@ -323,6 +323,7 @@ app.get('/api/categorias', async (req, res) => {
 app.post('/api/menu', async (req, res) => {
   const client = await pool.connect();
   try {
+    console.log('Request body:', req.body);
     const { nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, imagen } = req.body;
     const result = await client.query(
       'INSERT INTO menu_items (nombre, precio, categoria_id, descripcion, disponible, vegetariano, picante, imagen) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
