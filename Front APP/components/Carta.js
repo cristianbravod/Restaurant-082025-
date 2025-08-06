@@ -411,8 +411,11 @@ export default function Carta({
       let imagenUrl = formData.imagen_url;
       if (selectedImage && hasNewImage) {
         console.log('📤 Subiendo nueva imagen para crear producto...');
-        imagenUrl = await subirImagen();
-        if (!imagenUrl) return;
+        const uploadResult = await subirImagen();
+        if (uploadResult && uploadResult.urls) {
+          imagenUrl = uploadResult.urls.medium;
+          console.log('✅ Nueva imagen subida:', imagenUrl);
+        }
       }
 
       const nuevoProductoData = {
