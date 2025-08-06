@@ -382,12 +382,12 @@ export default function Carta({
       setImageUploadResult(result);
       console.log('✅ Resultado de la subida:', result);
       
-      return result.url || result.defaultUrl || selectedImage.uri;
+      return result;
     } catch (error) {
       console.error('Error subiendo imagen:', error);
       setImageError(true);
       Alert.alert('Error', 'No se pudo subir la imagen');
-      return selectedImage.uri;
+      return null;
     } finally {
       setUploadingImage(false);
     }
@@ -492,6 +492,22 @@ export default function Carta({
           console.log('✅ Nueva imagen subida:', imagenUrl);
         }
       }
+
+      const productoActualizado = {
+        id: modoEdicion,
+        nombre: formData.nombre.trim(),
+        precio: normalizarPrecio(formData.precio),
+        categoria_id: formData.categoria_id,
+        categoria: formData.categoria,
+        descripcion: formData.descripcion?.trim() || '',
+        imagen: imagenUrl || null,
+        imagen_url: imagenUrl || null,
+        disponible: formData.disponible,
+        vegetariano: formData.vegetariano,
+        picante: formData.picante
+      };
+
+      console.log('✏️ Actualizando producto con datos:', productoActualizado);
 
       const productoActualizado = {
         id: modoEdicion,
