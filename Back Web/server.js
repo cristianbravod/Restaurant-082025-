@@ -296,7 +296,7 @@ app.delete('/api/menu/:id', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Menu item not found' });
     }
-    res.status(204).send();
+    res.json({ success: true, message: 'Menu item deleted successfully' });
   } catch (error) {
     console.error('Error deleting menu item:', error);
     res.status(500).json({ error: 'Internal server error' });
