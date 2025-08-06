@@ -509,22 +509,6 @@ export default function Carta({
 
       console.log('✏️ Actualizando producto con datos:', productoActualizado);
 
-      const productoActualizado = {
-        id: modoEdicion,
-        nombre: formData.nombre.trim(),
-        precio: normalizarPrecio(formData.precio),
-        categoria_id: formData.categoria_id,
-        categoria: formData.categoria,
-        descripcion: formData.descripcion?.trim() || '',
-        imagen: imagenUrl || null,
-        imagen_url: imagenUrl || null,
-        disponible: formData.disponible,
-        vegetariano: formData.vegetariano,
-        picante: formData.picante
-      };
-
-      console.log('✏️ Actualizando producto con datos:', productoActualizado);
-
       if (endpointDisponible) {
         const response = await ApiService.updateItem(modoEdicion, productoActualizado, false);
         
