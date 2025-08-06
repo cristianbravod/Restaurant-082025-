@@ -31,11 +31,7 @@ const RESTAURANT_CONFIG = {
 // ==========================================
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) {
-      console.log('📱 Request móvil sin origin permitido');
-      return callback(null, true);
-    }
-    
+    console.log('Origin:', origin);
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:19000',
@@ -43,37 +39,16 @@ const corsOptions = {
       'http://192.1.1.16:19000',
       'exp://192.1.1.16:19000',
     ];
-    
-    if (allowedOrigins.includes(origin)) {
-      console.log('✅ Origin permitido:', origin);
-      return callback(null, true);
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-    
-    console.log('⚠️ Origin no listado pero permitido:', origin);
-    callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   maxAge: 86400
-};
-
-// Middleware CORS específico para móviles
-const mobileMiddleware = (req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', '*');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Max-Age', '86400');
-  
-  console.log(`🌐 ${req.method} ${req.path} - Origin: ${req.get('Origin') || 'mobile-app'}`);
-  
-  if (req.method === 'OPTIONS') {
-    console.log('✅ Preflight OPTIONS manejado correctamente');
-    return res.status(200).end();
-  }
-  
-  next();
 };
 
 // ==========================================
@@ -84,7 +59,6 @@ app.use(bodyParser.json());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cors(corsOptions));
-app.use(mobileMiddleware);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
@@ -100,23 +74,22 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
   max: 10,
   min: 2,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 5000,
   keepAlive: true,
   keepAliveInitialDelayMillis: 10000,
   allowExitOnIdle: false,
-  statement_timeout: 30000,
-  query_timeout: 30000,
-  idle_in_transaction_session_timeout: 30000
+  statement_timeout: 15000,
+  query_timeout: 15000,
+  idle_in_transaction_session_timeout: 15000
 });
 
 // Test de conexión BD
 async function testDB() {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT NOW()');
+    await client.query('SELECT NOW()');
     client.release();
-    console.log('✅ BD conectada:', result.rows[0].now);
     return true;
   } catch (error) {
     console.error('❌ Error BD:', error.message);
