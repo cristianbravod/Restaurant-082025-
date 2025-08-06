@@ -288,6 +288,23 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+app.delete('/api/menu/:id', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { id } = req.params;
+    const result = await client.query('DELETE FROM menu_items WHERE id = $1 RETURNING *', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Menu item not found' });
+    }
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting menu item:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    client.release();
+  }
+});
+
 app.post('/api/auth/verify', authMiddleware, (req, res) => {
   res.json({
     success: true,
