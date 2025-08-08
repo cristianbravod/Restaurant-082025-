@@ -35,19 +35,22 @@ router.get('/', async (req, res) => {
     const params = [];
     
     // Filtros opcionales
-    if (disponible !== undefined) {
-      query += ` AND disponible = $${params.length + 1}`;
-      params.push(disponible === 'true');
-    }
-    
-    if (vigente !== undefined) {
-      query += ` AND vigente = $${params.length + 1}`;
-      params.push(vigente === 'true');
-    } else {
-      // Por defecto, solo mostrar vigentes
-      query += ` AND vigente = TRUE`;
-    }
-    
+	if (disponible !== undefined) {
+	  query += ` AND disponible = $${params.length + 1}`;
+	  params.push(disponible === 'true');
+	} else {
+	  // ✅ CORREGIDO: Por defecto, solo mostrar disponibles
+	  query += ` AND disponible = TRUE`;
+	}
+
+	if (vigente !== undefined) {
+	  query += ` AND vigente = $${params.length + 1}`;
+	  params.push(vigente === 'true');
+	} else {
+	  // Por defecto, solo mostrar vigentes
+	  query += ` AND vigente = TRUE`;
+	}	
+	
     if (categoria_id) {
       query += ` AND categoria_id = $${params.length + 1}`;
       params.push(parseInt(categoria_id));
@@ -74,6 +77,40 @@ router.get('/', async (req, res) => {
       error: 'Error interno del servidor',
       details: error.message 
     });
+  } finally {
+    client.release();
+  }
+});
+
+
+// AGREGAR ESTO AL FINAL de src/routes/platos-especiales.js, antes de module.exports
+
+// GET /api/platos-especiales/debug-all - Ver TODOS los platos especiales
+router.get('/debug-all', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(`
+      SELECT 
+        id, nombre, precio, descripcion, disponible, vigente,
+        fecha_inicio, fecha_fin, imagen_url, created_at, updated_at
+      FROM platos_especiales 
+      ORDER BY created_at DESC
+    `);
+    
+    console.log('🔍 DEBUG - Todos los platos especiales en BD:');
+    result.rows.forEach(plato => {
+      console.log(`  📄 ID: ${plato.id}, Nombre: ${plato.nombre}, Vigente: ${plato.vigente}, Disponible: ${plato.disponible}`);
+    });
+    
+    res.json({
+      success: true,
+      total: result.rows.length,
+      platos: result.rows
+    });
+    
+  } catch (error) {
+    console.error('❌ Error debug:', error);
+    res.status(500).json({ error: error.message });
   } finally {
     client.release();
   }
