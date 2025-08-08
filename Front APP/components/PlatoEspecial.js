@@ -32,7 +32,7 @@ try {
 }
 
 import ApiService from "../services/ApiService";
-import { ImageService } from "../services/ImageService";
+import ImageService from "../services/ImageService";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function PlatoEspecial({ platosEspeciales = [], setPlatosEspeciales }) {
@@ -214,12 +214,16 @@ export default function PlatoEspecial({ platosEspeciales = [], setPlatosEspecial
       setImageUploadResult(result);
       console.log('✅ Resultado de la subida:', result);
       
-      return result.url || result.defaultUrl || selectedImage.uri;
+      if (result && result.urls) {
+        return result.urls.medium;
+      } else {
+        throw new Error('Image upload failed');
+      }
     } catch (error) {
       console.error('Error subiendo imagen:', error);
       setImageError(true);
       Alert.alert('Error', 'No se pudo subir la imagen');
-      return selectedImage.uri; // ✅ FALLBACK A URI LOCAL
+      return null;
     } finally {
       setUploadingImage(false);
     }
@@ -321,7 +325,7 @@ export default function PlatoEspecial({ platosEspeciales = [], setPlatosEspecial
       console.log('✏️ Actualizando plato especial con datos:', platoActualizado);
 
       if (endpointDisponible) {
-        const response = await ApiService.updatePlatoEspecial(modoEdicion, platoActualizado);
+        const response = await ApiService.updatePlatoEspecial(modoEdicion, { ...platoActualizado, imagen_url: imagenUrl });
         
         // ✅ ASEGURAR QUE LA RESPUESTA INCLUYA LA IMAGEN ACTUALIZADA
         const platoCompleto = {
