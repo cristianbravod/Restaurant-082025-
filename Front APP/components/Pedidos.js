@@ -11,9 +11,11 @@ import {
   Platform,
   ActivityIndicator,
   RefreshControl,
-  Image
+  Image,
+  TextInput
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ApiService from '../services/ApiService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -33,6 +35,7 @@ export default function Pedidos({
   // ==========================================
   const [categoriasDisponibles, setCategoriasDisponibles] = useState([]);
   const [platosEspecialesLocal, setPlatosEspecialesLocal] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // ✅ NUEVOS ESTADOS PARA SISTEMA DE MESAS
   const [mesasDisponibles, setMesasDisponibles] = useState([]);
@@ -166,8 +169,30 @@ export default function Pedidos({
   // EFECTOS
   // ==========================================
   useEffect(() => {
+    const cargarPedidosGuardados = async () => {
+      try {
+        const pedidosGuardados = await AsyncStorage.getItem('pedidosMesas');
+        if (pedidosGuardados !== null) {
+          setPedidosMesas(JSON.parse(pedidosGuardados));
+        }
+      } catch (error) {
+        console.error('Error cargando pedidos desde AsyncStorage:', error);
+      }
+    };
+    cargarPedidosGuardados();
     cargarDatosIniciales();
   }, [cargarDatosIniciales]);
+
+  useEffect(() => {
+    const guardarPedidos = async () => {
+      try {
+        await AsyncStorage.setItem('pedidosMesas', JSON.stringify(pedidosMesas));
+      } catch (error) {
+        console.error('Error guardando pedidos en AsyncStorage:', error);
+      }
+    };
+    guardarPedidos();
+  }, [pedidosMesas]);
 
   useEffect(() => {
     console.log('🔍 DEBUG PEDIDOS - Props recibidas:', {
@@ -201,9 +226,12 @@ export default function Pedidos({
       const esEspecial = categoriaProducto.toLowerCase().includes('especial') || 
                         producto.es_especial === true;
 
-      return estaDisponible && coincideCategoria && !esEspecial;
+      const searchLower = searchQuery.toLowerCase();
+      const nameLower = producto.nombre.toLowerCase();
+
+      return estaDisponible && coincideCategoria && !esEspecial && nameLower.includes(searchLower);
     });
-  }, [menu, getNombreCategoriaById]);
+  }, [menu, getNombreCategoriaById, searchQuery]);
 
   const productosPorCategoria = useMemo(() => {
     const resultado = {};
@@ -227,9 +255,11 @@ export default function Pedidos({
 
     return especiales.filter((plato) => {
       if (!plato || typeof plato !== 'object') return false;
-      return plato.disponible !== false;
+      const searchLower = searchQuery.toLowerCase();
+      const nameLower = plato.nombre.toLowerCase();
+      return plato.disponible !== false && nameLower.includes(searchLower);
     });
-  }, [platosEspeciales, platosEspecialesLocal]);
+  }, [platosEspeciales, platosEspecialesLocal, searchQuery]);
 
   // ==========================================
   // FUNCIONES DE GESTIÓN DE PEDIDOS
@@ -337,7 +367,15 @@ export default function Pedidos({
 
       console.log('📤 Enviando pedido a cocina:', pedidoData);
       
-      // Aquí llamarías a ApiService.enviarPedidoCocina(pedidoData)
+      const pedidoParaEnviar = {
+        mesa: mesaActual.nombre,
+        items: productosTemporales,
+        total: pedidoData.total,
+        cliente: `Mesa ${mesaActual.nombre}`,
+        observaciones: `Pedido por ${user?.nombre || 'Usuario'}`
+      };
+
+      await ApiService.createPedido(pedidoParaEnviar);
       
       // Mover productos temporales al pedido de la mesa
       setPedidosMesas(prev => ({
@@ -685,6 +723,16 @@ export default function Pedidos({
   return (
     <View style={styles.container}>
       {renderSelectorMesa()}
+
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar producto..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
 
       <ScrollView 
         style={styles.scrollView}
@@ -1102,5 +1150,26 @@ const styles = StyleSheet.create({
   },
   estadoOcupada: {
     color: '#FF9800',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 8,
+    margin: 16,
+    paddingHorizontal: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    paddingVertical: 12,
   },
 });

@@ -33,7 +33,6 @@ try {
 }
 
 import ApiService from "../services/ApiService";
-import { ImageService } from "../services/ImageService";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Carta({ 
@@ -376,19 +375,19 @@ export default function Carta({
       setImageUploadProgress(0);
 
       console.log('📤 Subiendo imagen al servidor...');
-      const result = await ImageService.uploadImage(selectedImage.uri, {
+      const result = await ApiService.uploadImage(selectedImage.uri, {
         onProgress: (progress) => setImageUploadProgress(progress)
       });
 
       setImageUploadResult(result);
       console.log('✅ Resultado de la subida:', result);
       
-      return result.url || result.defaultUrl || selectedImage.uri;
+      return result;
     } catch (error) {
       console.error('Error subiendo imagen:', error);
       setImageError(true);
       Alert.alert('Error', 'No se pudo subir la imagen');
-      return selectedImage.uri;
+      return null;
     } finally {
       setUploadingImage(false);
     }
@@ -412,8 +411,11 @@ export default function Carta({
       let imagenUrl = formData.imagen_url;
       if (selectedImage && hasNewImage) {
         console.log('📤 Subiendo nueva imagen para crear producto...');
-        imagenUrl = await subirImagen();
-        if (!imagenUrl) return;
+        const uploadResult = await subirImagen();
+        if (uploadResult && uploadResult.urls) {
+          imagenUrl = uploadResult.urls.medium;
+          console.log('✅ Nueva imagen subida:', imagenUrl);
+        }
       }
 
       const nuevoProductoData = {
@@ -487,9 +489,9 @@ export default function Carta({
       
       if (selectedImage && hasNewImage) {
         console.log('📤 Subiendo nueva imagen para actualizar producto...');
-        const nuevaImagenUrl = await subirImagen();
-        if (nuevaImagenUrl) {
-          imagenUrl = nuevaImagenUrl;
+        const uploadResult = await subirImagen();
+        if (uploadResult && uploadResult.urls) {
+          imagenUrl = uploadResult.urls.medium;
           console.log('✅ Nueva imagen subida:', imagenUrl);
         }
       }
@@ -511,7 +513,7 @@ export default function Carta({
       console.log('✏️ Actualizando producto con datos:', productoActualizado);
 
       if (endpointDisponible) {
-        const response = await ApiService.updateMenuItem(modoEdicion, productoActualizado);
+        const response = await ApiService.updateItem(modoEdicion, productoActualizado, false);
         
         const productoCompleto = {
           ...response,
@@ -571,7 +573,7 @@ export default function Carta({
               setLoading(true);
               
               if (endpointDisponible) {
-                await ApiService.deleteMenuItem(id);
+                await ApiService.deleteItem(id, false);
                 
                 if (typeof setMenu === 'function') {
                   setMenu(prev => Array.isArray(prev) ? prev.filter(producto => producto.id !== id) : []);
@@ -660,7 +662,7 @@ export default function Carta({
       const productoActualizado = { ...producto, disponible: !producto.disponible };
       
       if (endpointDisponible) {
-        await ApiService.updateMenuItem(producto.id, productoActualizado);
+        await ApiService.updateItem(producto.id, productoActualizado, false);
       } else {
         await guardarCambioOffline('update', productoActualizado);
         setPendingChanges(prev => prev + 1);

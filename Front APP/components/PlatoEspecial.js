@@ -459,35 +459,69 @@ export default function PlatoEspecial({ platosEspeciales = [], setPlatosEspecial
   };
 
   // ✅ TOGGLE DISPONIBILIDAD
-  const toggleDisponibilidad = async (plato) => {
-    if (userRole !== 'admin') {
-      Alert.alert('Acceso restringido', 'Solo los administradores pueden cambiar la disponibilidad');
-      return;
-    }
+  // components/PlatoEspecial.js - TOGGLE DISPONIBILIDAD CORREGIDO
 
-    if (!plato || typeof plato !== 'object') return;
+		const toggleDisponibilidad = async (plato) => {
+		  if (userRole !== 'admin') {
+			Alert.alert('Acceso restringido', 'Solo los administradores pueden cambiar la disponibilidad');
+			return;
+		  }
 
-    try {
-      const platoActualizado = { ...plato, disponible: !plato.disponible };
-      
-      if (endpointDisponible) {
-        await ApiService.updatePlatoEspecial(plato.id, platoActualizado);
-      }
-      
-      setPlatosEspeciales(prev => 
-        prev.map(p => p.id === plato.id ? platoActualizado : p)
-      );
-      
-      const nombreSeguro = plato.nombre || 'Plato especial';
-      const estadoTexto = platoActualizado.disponible ? 'activado' : 'desactivado';
-      setSyncStatus(`✅ ${nombreSeguro} ${estadoTexto}`);
-    } catch (error) {
-      console.error('❌ Error toggleando disponibilidad:', error);
-      Alert.alert('Error', 'No se pudo cambiar la disponibilidad');
-    } finally {
-      setTimeout(() => setSyncStatus(''), 3000);
-    }
-  };
+		  if (!plato || typeof plato !== 'object') return;
+
+		  try {
+			// ✅ IMPORTANTE: Invertir el valor actual
+			const nuevaDisponibilidad = !plato.disponible;
+			
+			console.log(`🔄 Cambiando disponibilidad de "${plato.nombre}": ${plato.disponible} -> ${nuevaDisponibilidad}`);
+			
+			if (endpointDisponible) {
+			  // ✅ USAR EL ENDPOINT ESPECÍFICO DE DISPONIBILIDAD (PATCH)
+			  await ApiService.togglePlatoEspecialAvailability(plato.id, nuevaDisponibilidad);
+			  
+			  // ✅ Actualizar el estado local INMEDIATAMENTE
+			  setPlatosEspeciales(prev => 
+				prev.map(p => {
+				  if (p.id === plato.id) {
+					console.log(`✅ Actualizando plato en estado local: ${p.nombre} -> disponible: ${nuevaDisponibilidad}`);
+					return { ...p, disponible: nuevaDisponibilidad };
+				  }
+				  return p;
+				})
+			  );
+			  
+			  const nombreSeguro = plato.nombre || 'Plato especial';
+			  const estadoTexto = nuevaDisponibilidad ? 'disponible' : 'no disponible';
+			  setSyncStatus(`✅ ${nombreSeguro} ahora está ${estadoTexto}`);
+			  
+			} else {
+			  // Modo offline
+			  setPlatosEspeciales(prev => 
+				prev.map(p => 
+				  p.id === plato.id 
+					? { ...p, disponible: nuevaDisponibilidad, _pendingSync: true }
+					: p
+				)
+			  );
+			  setSyncStatus('📱 Cambio guardado localmente');
+			  setPendingChanges(prev => prev + 1);
+			}
+			
+		  } catch (error) {
+			console.error('❌ Error toggleando disponibilidad:', error);
+			Alert.alert('Error', 'No se pudo cambiar la disponibilidad. Intenta nuevamente.');
+			
+			// ✅ Si hay error, revertir el cambio visual
+			setPlatosEspeciales(prev => 
+			  prev.map(p => 
+				p.id === plato.id ? { ...p, disponible: plato.disponible } : p
+			  )
+			);
+		  } finally {
+			setTimeout(() => setSyncStatus(''), 3000);
+		  }
+		};
+
 
   // ✅ ELIMINAR IMAGEN ACTUAL
   const eliminarImagenActual = () => {
